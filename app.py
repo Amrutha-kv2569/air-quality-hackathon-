@@ -111,193 +111,211 @@ TWILIO_PHONE_NUMBER = "+13856005348"
 # ==========================
 # CUSTOM CSS FOR STYLING
 # ==========================
-st.markdown(f"""
+st.markdown("""
 <style>
-    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap');
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
     
-    html, body, [class*="st-"] {{
+    html, body, [class*="st-"] {
         font-family: 'Inter', sans-serif;
-    }}
+    }
 
-    /* Main background - Teal/Blue Gradient */
-    .stApp {{
-        background: linear-gradient(135deg, {TOPIC_GRADIENT_START} 0%, {TOPIC_GRADIENT_END} 100%);
-    }}
+    /* Main background - Sky Blue Theme */
+    .stApp {
+        background: linear-gradient(135deg, #28A6A0 0%, #BBDEFB 50%, #90CAF9 100%);
+    }
 
     /* Hide Streamlit's default header and footer */
-    header, footer, #MainMenu {{
+    header, footer, #MainMenu {
         visibility: hidden;
-    }}
+    }
     
     /* Main title styling */
-    .main-title {{
+    .main-title {
         font-size: 3.5rem;
         font-weight: 900;
-        color: white; /* Contrast against the dark gradient */
+        color: #0D47A1;
         padding: 1.5rem 0 0.5rem 0;
         text-align: center;
-        text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.3);
+        text-shadow: 2px 2px 4px rgba(13, 71, 161, 0.2);
         letter-spacing: -1px;
-    }}
+    }
 
     /* Subtitle styling */
-    .subtitle {{
+    .subtitle {
         font-size: 1.2rem;
-        color: #E0FFFF; /* Very light text color for readability on gradient */
+        color: #1565C0;
         text-align: center;
         padding-bottom: 1.5rem;
         font-weight: 500;
-    }}
+    }
 
-    /* Metric cards styling (White cards with large rounding) */
-    .metric-card {{
+    /* Metric cards styling */
+    .metric-card {
         background-color: #FFFFFF;
-        border-radius: 20px; /* Increased rounding */
+        border-radius: 15px;
         padding: 1.5rem;
-        border: 1px solid #E0E0E0;
-        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+        border: 2px solid #BBDEFB;
+        box-shadow: 0 4px 20px rgba(33, 150, 243, 0.15);
         text-align: center;
         height: 100%;
-    }}
-    .metric-card-label {{
+    }
+    .metric-card-label {
         font-size: 1rem;
         font-weight: 600;
-        color: {TOPIC_BLUE_DARK};
+        color: #1565C0;
         margin-bottom: 0.5rem;
-    }}
-    .metric-card-value {{
+    }
+    .metric-card-value {
         font-size: 2.5rem;
-        font-weight: 900;
-        color: {TOPIC_ACCENT_GREEN}; /* Use accent color for data */
+        font-weight: 800;
+        color: #0D47A1;
         margin: 0.5rem 0;
-    }}
-    .metric-card-delta {{
+    }
+    .metric-card-delta {
         font-size: 0.9rem;
-        color: {TOPIC_BLUE_DARK};
+        color: #1976D2;
         font-weight: 500;
-    }}
+    }
 
     /* Weather widget styling */
-    .weather-widget {{
+    .weather-widget {
         background-color: #FFFFFF;
-        border-radius: 20px; /* Increased rounding */
+        border-radius: 15px;
         padding: 1.5rem;
-        border: 1px solid #E0E0E0;
-        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+        border: 2px solid #BBDEFB;
+        box-shadow: 0 4px 20px rgba(33, 150, 243, 0.15);
         height: 100%;
-    }}
-    .weather-temp {{
+    }
+    .weather-temp {
         font-size: 2.5rem;
-        font-weight: 900;
-        color: {TOPIC_BLUE_DARK};
-    }}
+        font-weight: 800;
+        color: #0D47A1;
+    }
 
     /* Styling for Streamlit tabs */
-    .stTabs [data-baseweb="tab-list"] {{
-        gap: 0.75rem;
+    .stTabs [data-baseweb="tab-list"] {
+        gap: 1rem;
         background-color: transparent;
         padding: 1rem 0;
-    }}
+    }
     
-    .stTabs [data-baseweb="tab"] {{
-        font-size: 1rem;
+    .stTabs [data-baseweb="tab"] {
+        font-size: 1.1rem;
         font-weight: 600;
         background-color: white;
-        border-radius: 10px; 
-        padding: 0.75rem 1.5rem;
-        border: 1px solid {TOPIC_TEAL_LIGHT};
-        color: {TOPIC_BLUE_DARK};
-        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-    }}
+        border-radius: 15px;
+        padding: 1rem 2rem;
+        border: 2px solid #BBDEFB;
+        color: #1565C0;
+        box-shadow: 0 2px 10px rgba(33, 150, 243, 0.1);
+    }
     
-    .stTabs [data-baseweb="tab"]:hover {{
-        background-color: #F0F8FF; /* Light hover */
-        border-color: {TOPIC_ACCENT_GREEN};
-    }}
+    .stTabs [data-baseweb="tab"]:hover {
+        background-color: #E3F2FD;
+        border-color: #2196F3;
+    }
     
-    .stTabs [aria-selected="true"] {{
-        background-color: {TOPIC_ACCENT_GREEN}; /* Green accent when selected */
+    .stTabs [aria-selected="true"] {
+        background: linear-gradient(135deg, #2196F3 0%, #1976D2 100%);
         color: white !important;
-        border-color: {TOPIC_ACCENT_GREEN};
-    }}
+        border-color: #1976D2;
+    }
 
-    /* General card for content (Main dashboard sections) */
-    .content-card {{
+    /* General card for content */
+    .content-card {
         background-color: #FFFFFF;
-        padding: 2.5rem;
-        border-radius: 25px; /* Maximum rounding for main containers */
-        border: 1px solid #E0E0E0;
-        box-shadow: 0 15px 35px rgba(0, 0, 0, 0.15);
+        padding: 2rem;
+        border-radius: 20px;
+        border: 2px solid #BBDEFB;
+        box-shadow: 0 10px 40px rgba(33, 150, 243, 0.2);
         margin-top: 1.5rem;
-    }}
+    }
+
+    /* Alert cards for different severity levels */
+    .alert-card {
+        padding: 1rem 1.5rem;
+        border-radius: 12px;
+        margin-bottom: 1rem;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        color: white;
+        font-weight: 600;
+    }
+    .alert-hazardous { 
+        background: linear-gradient(135deg, #EF5350 0%, #E53935 100%);
+        box-shadow: 0 4px 15px rgba(239, 83, 80, 0.3);
+    }
+    .alert-very-unhealthy { 
+        background: linear-gradient(135deg, #FF9800 0%, #F57C00 100%);
+        box-shadow: 0 4px 15px rgba(255, 152, 0, 0.3);
+    }
+    .alert-unhealthy { 
+        background: linear-gradient(135deg, #FFA726 0%, #FB8C00 100%);
+        box-shadow: 0 4px 15px rgba(255, 167, 38, 0.3);
+    }
 
     /* Section headers */
-    .section-header {{
-        font-size: 1.6rem;
-        font-weight: 800;
-        color: {TOPIC_BLUE_DARK};
+    .section-header {
+        font-size: 1.5rem;
+        font-weight: 700;
+        color: #0D47A1;
         margin-bottom: 1.5rem;
         padding-bottom: 0.5rem;
-        border-bottom: 3px solid {TOPIC_TEAL_LIGHT};
-    }}
+        border-bottom: 3px solid #BBDEFB;
+    }
 
-    /* Primary buttons (Search button style) */
-    .stButton > button {{
-        background-color: {TOPIC_ACCENT_GREEN};
-        color: white;
-        border: none;
-        border-radius: 8px;
-        padding: 0.6rem 1.2rem;
-        font-weight: 700;
-        box-shadow: 0 4px 10px rgba(93, 195, 165, 0.4);
-        transition: background-color 0.2s;
-    }}
-    .stButton > button:hover {{
-        background-color: #4CAF92;
-    }}
-    
     /* Info box styling */
-    div[data-testid="stAlert"] {{
+    div[data-testid="stAlert"] {
         background-color: white;
-        border-left: 5px solid {TOPIC_TEAL_LIGHT};
+        border-left: 5px solid #2196F3;
         border-radius: 10px;
-        color: {TOPIC_BLUE_DARK};
-    }}
+        color: #0D47A1;
+    }
+
+    /* Success box styling */
+    div[data-testid="stSuccess"] {
+        background-color: white;
+        border-left: 5px solid #4CAF50;
+        border-radius: 10px;
+        color: #2E7D32;
+    }
 
     /* Error box styling */
-    div[data-testid="stError"] {{
+    div[data-testid="stError"] {
         background-color: white;
-        border-left: 5px solid #E53935;
+        border-left: 5px solid #EF5350;
         border-radius: 10px;
         color: #C62828;
-    }}
+    }
+
+    /* Dataframe styling */
+    div[data-testid="stDataFrame"] {
+        border: 2px solid #BBDEFB;
+        border-radius: 10px;
+        background-color: white;
+    }
+    
+    /* Chart containers */
+    div[data-testid="stPlotlyChart"] {
+        background-color: white;
+        border-radius: 10px;
+        padding: 0.5rem;
+    }
+    
+    /* Ensure all containers have white background */
+    .element-container {
+        background-color: transparent;
+    }
+    
+    /* Block container styling */
+    .block-container {
+        background-color: transparent;
+        padding-top: 2rem;
+    }
 
 </style>
 """, unsafe_allow_html=True)
-
-@st.cache_data(show_spinner="Loading Delhi boundary...")
-def load_delhi_boundary_from_url():
-    """Loads and caches the Delhi boundary GeoJSON from a URL."""
-    try:
-        # Load GeoJSON, convert to WGS84
-        gdf = gpd.read_file(DELHI_GEOJSON_URL)
-        gdf = gdf.to_crs(epsg=4326)
-        
-        # Combine all geometries into one single polygon
-        delhi_polygon = gdf.unary_union
-        
-        # Define UTM zone 43N (appropriate for Delhi) projection transformer
-        project_to_utm = pyproj.Transformer.from_crs(
-             "epsg:4326", "epsg:32643", always_xy=True
-        ).transform
-        
-        # Apply transformation to the polygon
-        delhi_polygon_utm = transform(project_to_utm, delhi_polygon)
-        
-        return gdf, delhi_polygon_utm
-    except Exception as e:
-        # st.error(f"Error loading boundary from URL: {e}")
-        return None, None
 
 @st.cache_data(show_spinner="Loading Delhi boundary...")
 def load_delhi_boundary_from_url():
