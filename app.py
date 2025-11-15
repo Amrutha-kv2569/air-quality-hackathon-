@@ -497,7 +497,7 @@ Stay safe!"""
 
 def render_header(df):
     """Renders the main header with summary metrics and weather."""
-    st.markdown('<div class="main-title">🌍 Discover. Learn. Enjoy.</div>',
+    st.markdown('<div class="main-title">🌍 Delhi Air Quality Dashboard.</div>',
                 unsafe_allow_html=True)
     last_update_time = df['last_updated'].max(
     ) if not df.empty and 'last_updated' in df.columns else "N/A"
