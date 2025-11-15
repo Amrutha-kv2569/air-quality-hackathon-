@@ -121,7 +121,7 @@ st.markdown("""
 
     /* Main background - Sky Blue Theme */
 .stApp {
-    background: #D8F3DC !important;
+    background: linear-gradient(135deg, #D8F3DC 0%, #B7E4C7 50%, #95D5B2 100%) !important;
 }
     /* Hide Streamlit's default header and footer */
     header, footer, #MainMenu {
