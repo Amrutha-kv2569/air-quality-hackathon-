@@ -1,12 +1,12 @@
 streamlit
 pandas
-numpy
 requests
 pydeck
 plotly
-scipy
+numpy
+Twilio
 geopandas
+tensorflow
+pykrige
 pyproj
-shapely
-krigging
-twilio
+scikit-learn
