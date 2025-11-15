@@ -121,7 +121,7 @@ st.markdown("""
 
     /* Main background - Sky Blue Theme */
     .stApp {
-    background: linear-gradient(135deg, #1BAFA3 0%, #1BAFA3 50%, #A7E6CE 100%) !important;
+    background: linear-gradient(135deg, #A7E6CE 0%, #1BAFA3 50%, #A7E6CE 100%) !important;
 }
 
     /* Hide Streamlit's default header and footer */
