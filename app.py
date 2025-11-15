@@ -16,9 +16,9 @@ from shapely.ops import transform
 # CONFIGURABLE THEME / SECRETS
 # -----------------------------
 # Change these three hex values to get the background gradient you want.
-BG_COLOR_1 = "#E3F2FD"  # light
-BG_COLOR_2 = "#BBDEFB"  # mid
-BG_COLOR_3 = "#90CAF9"  # deep
+BG_COLOR_1 = "#0D6F86"  # light
+BG_COLOR_2 = "#28A6A0"  # mid
+BG_COLOR_3 = "#6ED0C8"  # deep
 
 # Put your real API keys / tokens here (DO NOT commit to public repos).
 API_TOKEN = "REPLACE_WITH_WAQI_API_TOKEN"
