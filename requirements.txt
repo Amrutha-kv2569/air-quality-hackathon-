@@ -1,0 +1,12 @@
+streamlit
+pandas
+numpy
+requests
+pydeck
+plotly
+scipy
+geopandas
+pyproj
+shapely
+krigging
+twilio
