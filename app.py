@@ -5,83 +5,11 @@ import requests
 import pydeck as pdk
 import plotly.express as px
 from datetime import datetime, timedelta
+# Assuming these are correctly installed:
 from krigging import perform_kriging_correct
 import geopandas as gpd
-from shapely.geometry import Point
 import pyproj
 from shapely.ops import transform
-
-
-def get_user_geolocation():
-    """
-    Gets user location using browser geolocation.
-    On the first run, JS runs and asks for location.
-    On reload, lat/lon appear in query params.
-    """
-    query = st.experimental_get_query_params()
-
-    if "lat" in query and "lon" in query:
-        try:
-            lat = float(query["lat"][0])
-            lon = float(query["lon"][0])
-            return lat, lon
-        except:
-            return None
-
-
-    # Ask browser for location (JavaScript)
-    st.markdown("""
-        <script>
-        navigator.geolocation.getCurrentPosition(
-            (pos) => {
-                const lat = pos.coords.latitude;
-                const lon = pos.coords.longitude;
-                const params = new URLSearchParams(window.location.search);
-                params.set("lat", lat);
-                params.set("lon", lon);
-                window.location.search = params.toString();
-            },
-            (err) => {
-                console.log("Geolocation blocked:", err);
-            }
-        );
-        </script>
-    """, unsafe_allow_html=True)
-
-    return None
-
-
-SMS77_API_KEY = "YOUR_SMS77_API_KEY"
-
-def send_sms_sms77(phone, text):
-    url = "https://gateway.sms77.io/api/sms"
-
-    payload = {
-        "to": phone,
-        "text": text,
-        "from": "AQIAlert",
-        "json": "1"
-    }
-
-    headers = {
-        "X-Api-Key": ce9196b9famsh41c38d8b9917c08p11f8e0jsnd367c1038fa7
-    }
-
-    r = requests.post(url, data=payload, headers=headers)
-    return r.json()
-
-
-def get_aqi_from_kriging_point(user_lon, user_lat, lon_grid, lat_grid, z_grid):
-    """
-    Returns interpolated AQI from the kriging grid at the user's exact location.
-    """
-    dist = (lon_grid - user_lon)**2 + (lat_grid - user_lat)**2
-    idx = np.unravel_index(np.argmin(dist), dist.shape)
-
-    value = z_grid[idx]
-    if np.isnan(value):
-        return None
-    return float(value)
 
 
 # ==========================
@@ -108,210 +36,182 @@ TWILIO_ACCOUNT_SID = "AC2cc57109fc63de336609901187eca69d"
 TWILIO_AUTH_TOKEN = "62b791789bb490f91879e89fa2ed959d"
 TWILIO_PHONE_NUMBER = "+13856005348"
 
-# ==========================
-# CUSTOM CSS FOR STYLING
-# ==========================
-st.markdown("""
-<style>
-    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
-    
-    html, body, [class*="st-"] {
-        font-family: 'Inter', sans-serif;
-    }
+# **NEW COLORS BASED ON "TOPIC" TEMPLATE**
+# Primary Teal (Lighter side of gradient/buttons)
+TOPIC_TEAL_LIGHT = "#63B4B8" 
+# Secondary Blue (Darker side of gradient/headers)
+TOPIC_BLUE_DARK = "#286D87" 
+# Accent/Primary Button Green
+TOPIC_ACCENT_GREEN = "#5DC3A5" 
+# Background Gradient (Based on the image)
+TOPIC_GRADIENT_START = "#63B4B8"
+TOPIC_GRADIENT_END = "#36768D"
+# Card Background is pure white
+# Text Color is dark blue/gray for contrast
 
-    /* Main background - Sky Blue Theme */
-.stApp {
+# ==========================
+# CUSTOM CSS FOR STYLING (NEW "TOPIC" THEME)
+# ==========================
+st.markdown(f"""
+<style>
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap');
+    
+    html, body, [class*="st-"] {{
+        font-family: 'Inter', sans-serif;
+    }}
+
+    /* Main background - Teal/Blue Gradient */
+    .stApp {{
         background: linear-gradient(135deg, {TOPIC_GRADIENT_START} 0%, {TOPIC_GRADIENT_END} 100%);
-    }
+    }}
+
     /* Hide Streamlit's default header and footer */
-    header, footer, #MainMenu {
+    header, footer, #MainMenu {{
         visibility: hidden;
-    }
+    }}
     
     /* Main title styling */
-    .main-title {
+    .main-title {{
         font-size: 3.5rem;
         font-weight: 900;
-        color: #0D47A1;
+        color: white; /* Contrast against the dark gradient */
         padding: 1.5rem 0 0.5rem 0;
         text-align: center;
-        text-shadow: 2px 2px 4px rgba(13, 71, 161, 0.2);
+        text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.3);
         letter-spacing: -1px;
-    }
+    }}
 
     /* Subtitle styling */
-    .subtitle {
+    .subtitle {{
         font-size: 1.2rem;
-        color: #1565C0;
+        color: #E0FFFF; /* Very light text color for readability on gradient */
         text-align: center;
         padding-bottom: 1.5rem;
         font-weight: 500;
-    }
+    }}
 
-    /* Metric cards styling */
-    .metric-card {
+    /* Metric cards styling (White cards with large rounding) */
+    .metric-card {{
         background-color: #FFFFFF;
-        border-radius: 15px;
+        border-radius: 20px; /* Increased rounding */
         padding: 1.5rem;
-        border: 2px solid #BBDEFB;
-        box-shadow: 0 4px 20px rgba(33, 150, 243, 0.15);
+        border: 1px solid #E0E0E0;
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
         text-align: center;
         height: 100%;
-    }
-    .metric-card-label {
+    }}
+    .metric-card-label {{
         font-size: 1rem;
         font-weight: 600;
-        color: #1565C0;
+        color: {TOPIC_BLUE_DARK};
         margin-bottom: 0.5rem;
-    }
-    .metric-card-value {
+    }}
+    .metric-card-value {{
         font-size: 2.5rem;
-        font-weight: 800;
-        color: #0D47A1;
+        font-weight: 900;
+        color: {TOPIC_ACCENT_GREEN}; /* Use accent color for data */
         margin: 0.5rem 0;
-    }
-    .metric-card-delta {
+    }}
+    .metric-card-delta {{
         font-size: 0.9rem;
-        color: #1976D2;
+        color: {TOPIC_BLUE_DARK};
         font-weight: 500;
-    }
+    }}
 
     /* Weather widget styling */
-    .weather-widget {
+    .weather-widget {{
         background-color: #FFFFFF;
-        border-radius: 15px;
+        border-radius: 20px; /* Increased rounding */
         padding: 1.5rem;
-        border: 2px solid #BBDEFB;
-        box-shadow: 0 4px 20px rgba(33, 150, 243, 0.15);
+        border: 1px solid #E0E0E0;
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
         height: 100%;
-    }
-    .weather-temp {
+    }}
+    .weather-temp {{
         font-size: 2.5rem;
-        font-weight: 800;
-        color: #0D47A1;
-    }
+        font-weight: 900;
+        color: {TOPIC_BLUE_DARK};
+    }}
 
     /* Styling for Streamlit tabs */
-    .stTabs [data-baseweb="tab-list"] {
-        gap: 1rem;
+    .stTabs [data-baseweb="tab-list"] {{
+        gap: 0.75rem;
         background-color: transparent;
         padding: 1rem 0;
-    }
+    }}
     
-    .stTabs [data-baseweb="tab"] {
-        font-size: 1.1rem;
+    .stTabs [data-baseweb="tab"] {{
+        font-size: 1rem;
         font-weight: 600;
         background-color: white;
-        border-radius: 15px;
-        padding: 1rem 2rem;
-        border: 2px solid #BBDEFB;
-        color: #1565C0;
-        box-shadow: 0 2px 10px rgba(33, 150, 243, 0.1);
-    }
+        border-radius: 10px; 
+        padding: 0.75rem 1.5rem;
+        border: 1px solid {TOPIC_TEAL_LIGHT};
+        color: {TOPIC_BLUE_DARK};
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    }}
     
-    .stTabs [data-baseweb="tab"]:hover {
-        background-color: #E3F2FD;
-        border-color: #2196F3;
-    }
+    .stTabs [data-baseweb="tab"]:hover {{
+        background-color: #F0F8FF; /* Light hover */
+        border-color: {TOPIC_ACCENT_GREEN};
+    }}
     
-    .stTabs [aria-selected="true"] {
-        background: linear-gradient(135deg, #2196F3 0%, #1976D2 100%);
+    .stTabs [aria-selected="true"] {{
+        background-color: {TOPIC_ACCENT_GREEN}; /* Green accent when selected */
         color: white !important;
-        border-color: #1976D2;
-    }
+        border-color: {TOPIC_ACCENT_GREEN};
+    }}
 
-    /* General card for content */
-    .content-card {
+    /* General card for content (Main dashboard sections) */
+    .content-card {{
         background-color: #FFFFFF;
-        padding: 2rem;
-        border-radius: 20px;
-        border: 2px solid #BBDEFB;
-        box-shadow: 0 10px 40px rgba(33, 150, 243, 0.2);
+        padding: 2.5rem;
+        border-radius: 25px; /* Maximum rounding for main containers */
+        border: 1px solid #E0E0E0;
+        box-shadow: 0 15px 35px rgba(0, 0, 0, 0.15);
         margin-top: 1.5rem;
-    }
-
-    /* Alert cards for different severity levels */
-    .alert-card {
-        padding: 1rem 1.5rem;
-        border-radius: 12px;
-        margin-bottom: 1rem;
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-        color: white;
-        font-weight: 600;
-    }
-    .alert-hazardous { 
-        background: linear-gradient(135deg, #EF5350 0%, #E53935 100%);
-        box-shadow: 0 4px 15px rgba(239, 83, 80, 0.3);
-    }
-    .alert-very-unhealthy { 
-        background: linear-gradient(135deg, #FF9800 0%, #F57C00 100%);
-        box-shadow: 0 4px 15px rgba(255, 152, 0, 0.3);
-    }
-    .alert-unhealthy { 
-        background: linear-gradient(135deg, #FFA726 0%, #FB8C00 100%);
-        box-shadow: 0 4px 15px rgba(255, 167, 38, 0.3);
-    }
+    }}
 
     /* Section headers */
-    .section-header {
-        font-size: 1.5rem;
-        font-weight: 700;
-        color: #0D47A1;
+    .section-header {{
+        font-size: 1.6rem;
+        font-weight: 800;
+        color: {TOPIC_BLUE_DARK};
         margin-bottom: 1.5rem;
         padding-bottom: 0.5rem;
-        border-bottom: 3px solid #BBDEFB;
-    }
+        border-bottom: 3px solid {TOPIC_TEAL_LIGHT};
+    }}
 
+    /* Primary buttons (Search button style) */
+    .stButton > button {{
+        background-color: {TOPIC_ACCENT_GREEN};
+        color: white;
+        border: none;
+        border-radius: 8px;
+        padding: 0.6rem 1.2rem;
+        font-weight: 700;
+        box-shadow: 0 4px 10px rgba(93, 195, 165, 0.4);
+        transition: background-color 0.2s;
+    }}
+    .stButton > button:hover {{
+        background-color: #4CAF92;
+    }}
+    
     /* Info box styling */
-    div[data-testid="stAlert"] {
+    div[data-testid="stAlert"] {{
         background-color: white;
-        border-left: 5px solid #2196F3;
+        border-left: 5px solid {TOPIC_TEAL_LIGHT};
         border-radius: 10px;
-        color: #0D47A1;
-    }
-
-    /* Success box styling */
-    div[data-testid="stSuccess"] {
-        background-color: white;
-        border-left: 5px solid #4CAF50;
-        border-radius: 10px;
-        color: #2E7D32;
-    }
+        color: {TOPIC_BLUE_DARK};
+    }}
 
     /* Error box styling */
-    div[data-testid="stError"] {
+    div[data-testid="stError"] {{
         background-color: white;
-        border-left: 5px solid #EF5350;
+        border-left: 5px solid #E53935;
         border-radius: 10px;
         color: #C62828;
-    }
-
-    /* Dataframe styling */
-    div[data-testid="stDataFrame"] {
-        border: 2px solid #BBDEFB;
-        border-radius: 10px;
-        background-color: white;
-    }
-    
-    /* Chart containers */
-    div[data-testid="stPlotlyChart"] {
-        background-color: white;
-        border-radius: 10px;
-        padding: 0.5rem;
-    }
-    
-    /* Ensure all containers have white background */
-    .element-container {
-        background-color: transparent;
-    }
-    
-    /* Block container styling */
-    .block-container {
-        background-color: transparent;
-        padding-top: 2rem;
-    }
+    }}
 
 </style>
 """, unsafe_allow_html=True)
@@ -320,18 +220,24 @@ st.markdown("""
 def load_delhi_boundary_from_url():
     """Loads and caches the Delhi boundary GeoJSON from a URL."""
     try:
-        
+        # Load GeoJSON, convert to WGS84
         gdf = gpd.read_file(DELHI_GEOJSON_URL)
-        
-       
-        gdf = gdf.to_crs(epsg=4326) 
+        gdf = gdf.to_crs(epsg=4326)
         
         # Combine all geometries into one single polygon
-        delhi_polygon = gdf.unary_union 
-        return gdf, delhi_polygon
+        delhi_polygon = gdf.unary_union
+        
+        # Define UTM zone 43N (appropriate for Delhi) projection transformer
+        project_to_utm = pyproj.Transformer.from_crs(
+             "epsg:4326", "epsg:32643", always_xy=True
+        ).transform
+        
+        # Apply transformation to the polygon
+        delhi_polygon_utm = transform(project_to_utm, delhi_polygon)
+        
+        return gdf, delhi_polygon_utm
     except Exception as e:
-        st.error(f"Error loading boundary from URL: {e}")
-        st.error(f"URL tried: {DELHI_GEOJSON_URL}")
+        # st.error(f"Error loading boundary from URL: {e}")
         return None, None
 
 @st.cache_data(ttl=600, show_spinner="Fetching Air Quality Data...")
@@ -347,27 +253,15 @@ def fetch_live_data():
             df = df[df['aqi'] != "-"]
             df['aqi'] = pd.to_numeric(df['aqi'], errors='coerce')
             df = df.dropna(subset=['aqi'])
-            # Robustly extract station name and last updated time
 
             def safe_get_name(x):
-                if isinstance(x, dict):
-                    return x.get('name', 'N/A')
-                elif isinstance(x, str):
-                    return x
-                else:
-                    return 'N/A'
+                return x.get('name', 'N/A') if isinstance(x, dict) else (x if isinstance(x, str) else 'N/A')
 
             def safe_get_time(x):
                 if isinstance(x, dict):
                     time_data = x.get('time', {})
-                    if isinstance(time_data, dict):
-                        return time_data.get('s', 'N/A')
-                    elif isinstance(time_data, str):
-                        return time_data
-                    else:
-                        return 'N/A'
-                else:
-                    return 'N/A'
+                    return time_data.get('s', 'N/A') if isinstance(time_data, dict) else (time_data if isinstance(time_data, str) else 'N/A')
+                return 'N/A'
 
             df['station_name'] = df['station'].apply(safe_get_name)
             df['last_updated'] = df['station'].apply(safe_get_time)
@@ -380,8 +274,6 @@ def fetch_live_data():
         return pd.DataFrame()
     except requests.RequestException:
         return pd.DataFrame()
-
-    # ... (rest of your function) ...
 
 @st.cache_data(ttl=1800, show_spinner="Fetching Weather Data...")
 def fetch_weather_data():
@@ -410,37 +302,50 @@ def get_aqi_category(aqi):
     else:
         return "Hazardous", [126, 34, 206], "☠️", "Health warnings of emergency conditions. The entire population is more likely to be affected."
 
-def render_kriging_tab(df):
 
-    st.subheader("Spatial Interpolation (Kriging)")
+def render_kriging_tab(df):
+    
+    st.markdown('<div class="section-header">🔥 Kriging Interpolation Heatmap</div>', unsafe_allow_html=True)
 
     delhi_bounds_tuple = (28.40, 28.88, 76.84, 77.35)
 
-    # Load polygon
-    delhi_gdf, delhi_polygon = load_delhi_boundary_from_url()
+    _, delhi_polygon_utm = load_delhi_boundary_from_url()
 
-    if delhi_gdf is None:
-        st.error("Delhi boundary could not be loaded.")
+    if delhi_polygon_utm is None:
+        st.error("Cannot render Kriging map: Delhi shapefile is not loaded or necessary geospatial libraries are missing.")
+        return 
+
+    if df.empty:
+        st.warning("No AQI stations available.")
         return
+
+    # Kriging Safety Checks
+    if df["aqi"].nunique() < 2:
+        st.error("Kriging cannot run because all AQI values are identical.")
+        return
+    if len(df) < 4:
+        st.error("Not enough AQI stations available for kriging (need ≥ 4).")
+        return
+    if df[['lat','lon']].duplicated().any():
+        st.error("Duplicate station coordinates found — kriging cannot proceed.")
+        return
+
 
     with st.spinner("Performing spatial interpolation..."):
         lon_grid, lat_grid, z = perform_kriging_correct(
             df,
             delhi_bounds_tuple,
-            polygon=delhi_polygon,
+            polygon=delhi_polygon_utm,
             resolution=200
         )
 
-    # ❗ SAVE THE RESULT FOR SMS TAB
-    st.session_state["kriging_result"] = (lon_grid, lat_grid, z)
-    st.success("Kriging result stored successfully!")
-
-    # Create Heatmap
     heatmap_df = pd.DataFrame({
         "lon": lon_grid.flatten(),
         "lat": lat_grid.flatten(),
         "aqi": z.flatten()
     })
+    
+    heatmap_df = heatmap_df.dropna()
 
     fig = px.density_mapbox(
         heatmap_df,
@@ -448,7 +353,7 @@ def render_kriging_tab(df):
         lon="lon",
         z="aqi",
         radius=10,
-        center=dict(lat=28.6139, lon=77.2090),
+        center=dict(lat=DELHI_LAT, lon=DELHI_LON),
         zoom=9,
         mapbox_style="carto-positron",
         color_continuous_scale=[
@@ -456,10 +361,13 @@ def render_kriging_tab(df):
             "#DC2626", "#9333EA", "#7E22CE"
         ]
     )
-
+    
+    fig.update_layout(title_text='Interpolated AQI Heatmap', title_font_color=TOPIC_BLUE_DARK)
+    
     st.plotly_chart(fig, use_container_width=True)
 
-
+    st.info("💡 **Spatial Interpolation (Kriging):** This technique estimates AQI values across all of Delhi using the limited monitoring station data, providing a continuous **heatmap** of air quality. This requires coordinates to be projected (UTM) for accurate distance calculation.", icon="🗺️")
+    
 
 def get_weather_info(code):
     """Converts WMO weather code to a description and icon."""
@@ -503,6 +411,84 @@ def get_nearby_stations(df, user_lat, user_lon, radius_km=10):
     return nearby
 
 
+def send_sms_alert(phone_number, message):
+    """Send SMS alert using Twilio."""
+    try:
+        from twilio.rest import Client
+
+        # Check if credentials are configured
+        if TWILIO_ACCOUNT_SID == "AC2cc57109fc63de336609901187eca69d" or not TWILIO_ACCOUNT_SID.startswith("AC"):
+            return False, "⚠️ Twilio Account SID not configured correctly."
+
+        if TWILIO_AUTH_TOKEN == "62b791789bb490f91879e89fa2ed959d" or len(TWILIO_AUTH_TOKEN) < 30:
+            return False, "⚠️ Twilio Auth Token not configured correctly."
+
+        if TWILIO_PHONE_NUMBER == "+13856005348" or not TWILIO_PHONE_NUMBER.startswith("+"):
+            return False, "⚠️ Twilio Phone Number not configured correctly."
+
+        # Validate recipient phone number
+        if not phone_number.startswith("+"):
+            return False, "⚠️ Recipient phone number must include country code starting with '+'"
+
+        # Create Twilio client
+        client = Client(TWILIO_ACCOUNT_SID, TWILIO_AUTH_TOKEN)
+
+        # Send message
+        sent_message = client.messages.create(
+            body=message,
+            from_=TWILIO_PHONE_NUMBER,
+            to=phone_number
+        )
+
+        return True, f"✅ Alert sent successfully! Message SID: {sent_message.sid}"
+    except ImportError:
+        return False, "❌ Twilio library not installed. Run: pip install twilio"
+    except Exception as e:
+        error_msg = str(e)
+        if "401" in error_msg or "authenticate" in error_msg.lower():
+            return False, f"🔐 Authentication Error: Your Twilio credentials are incorrect.\n\nError details: {error_msg}"
+        elif "unverified" in error_msg.lower():
+            return False, f"📱 Phone Number Not Verified: For trial accounts, verify recipient number.\n\nError details: {error_msg}"
+        else:
+            return False, f"❌ Error sending SMS: {error_msg}"
+
+
+def create_alert_message(nearby_stations, weather_data, location_name):
+    """Create alert message with AQI and weather information."""
+    if nearby_stations.empty:
+        return "No nearby air quality monitoring stations found."
+
+    # Get average AQI and worst station
+    avg_aqi = nearby_stations['aqi'].mean()
+    worst_station = nearby_stations.iloc[0]
+
+    # Get weather info
+    weather_desc = "N/A"
+    temp = "N/A"
+    if weather_data and 'current' in weather_data:
+        current = weather_data['current']
+        weather_desc, _ = get_weather_info(current.get('weather_code', 0))
+        temp = f"{current['temperature_2m']:.1f}°C"
+
+    # Create message
+    category, _, emoji, advice = get_aqi_category(avg_aqi)
+
+    message = f"""🌍 Air Quality Alert - {location_name}
+
+{emoji} AQI Status: {category}
+📊 Average AQI: {avg_aqi:.0f}
+
+🔴 Worst Station: {worst_station['station_name']}
+AQI: {worst_station['aqi']:.0f} ({worst_station['distance']:.1f} km away)
+
+🌤️ Weather: {weather_desc}
+🌡️ Temperature: {temp}
+
+💡 Advice: {advice}
+
+Stay safe!"""
+
+    return message
 
 # ==========================
 # UI RENDERING FUNCTIONS
@@ -511,12 +497,12 @@ def get_nearby_stations(df, user_lat, user_lon, radius_km=10):
 
 def render_header(df):
     """Renders the main header with summary metrics and weather."""
-    st.markdown('<div class="main-title">🌍 Delhi Air Quality Dashboard</div>',
+    st.markdown('<div class="main-title">🌍 Discover. Learn. Enjoy.</div>',
                 unsafe_allow_html=True)
     last_update_time = df['last_updated'].max(
     ) if not df.empty and 'last_updated' in df.columns else "N/A"
     st.markdown(
-        f'<p class="subtitle">Real-time monitoring • Last updated: {last_update_time}</p>', unsafe_allow_html=True)
+        f'<p class="subtitle">Real-time air quality platform for creatives around the world • Last updated: {last_update_time}</p>', unsafe_allow_html=True)
 
     c1, c2, c3, c4 = st.columns(4)
     if not df.empty:
@@ -546,71 +532,65 @@ def render_header(df):
                     </div>
                     <div style="font-size: 3rem;">{icon}</div>
                 </div>
-                <div style="text-align: left; font-size: 0.9rem; color: #1976D2; margin-top: 1rem; font-weight: 500;">
+                <div style="text-align: left; font-size: 0.9rem; color: {TOPIC_BLUE_DARK}; margin-top: 1rem; font-weight: 500;">
                     {desc}<br/>Humidity: {current['relative_humidity_2m']}%<br/>Wind: {current['wind_speed_10m']} km/h
                 </div>
             </div>
             """, unsafe_allow_html=True)
         else:
-            st.markdown("""
+            st.markdown(f"""
             <div class="weather-widget">
                 <div class="metric-card-label">Current Weather</div>
-                <div style="color: #1976D2; margin-top: 1rem;">Weather data unavailable</div>
+                <div style="color: {TOPIC_BLUE_DARK}; margin-top: 1rem;">Weather data unavailable</div>
             </div>
             """, unsafe_allow_html=True)
 
 
 def render_map_tab(df):
     """Renders the interactive map of AQI stations."""
-    # The 'df' passed here is already filtered!
-    st.markdown('<div class="section-header">📍 Interactive Air Quality Map (Stations inside Delhi)</div>',
+    st.markdown('<div class="section-header">📍 Interactive Air Quality Map</div>',
                 unsafe_allow_html=True)
 
-    if df.empty:
-        st.warning("No monitoring stations found inside the Delhi boundary.")
-        return
-
-    # Add Legend (No changes here)
-    st.markdown("""
-    <div style="background-color: white; padding: 1rem; border-radius: 10px; border: 2px solid #BBDEFB; margin-bottom: 1rem;">
-        <div style="font-weight: 700; color: #0D47A1; margin-bottom: 0.75rem; font-size: 1.1rem;">AQI Color Legend</div>
+    # Add Legend (Uses new colors for styling)
+    st.markdown(f"""
+    <div style="background-color: white; padding: 1rem; border-radius: 15px; border: 1px solid #E0E0E0; margin-bottom: 1rem;">
+        <div style="font-weight: 700; color: {TOPIC_BLUE_DARK}; margin-bottom: 0.75rem; font-size: 1.1rem;">AQI Color Legend</div>
         <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 0.75rem;">
             <div style="display: flex; align-items: center; gap: 0.5rem;">
                 <div style="width: 20px; height: 20px; border-radius: 50%; background-color: rgb(0, 158, 96);"></div>
-                <span style="color: #1E293B; font-weight: 500;">Good (0-50)</span>
+                <span style="color: {TOPIC_BLUE_DARK}; font-weight: 500;">Good (0-50)</span>
             </div>
             <div style="display: flex; align-items: center; gap: 0.5rem;">
                 <div style="width: 20px; height: 20px; border-radius: 50%; background-color: rgb(255, 214, 0);"></div>
-                <span style="color: #1E293B; font-weight: 500;">Moderate (51-100)</span>
+                <span style="color: {TOPIC_BLUE_DARK}; font-weight: 500;">Moderate (51-100)</span>
             </div>
             <div style="display: flex; align-items: center; gap: 0.5rem;">
                 <div style="width: 20px; height: 20px; border-radius: 50%; background-color: rgb(249, 115, 22);"></div>
-                <span style="color: #1E293B; font-weight: 500;">Unhealthy for Sensitive (101-150)</span>
+                <span style="color: {TOPIC_BLUE_DARK}; font-weight: 500;">Unhealthy for Sensitive (101-150)</span>
             </div>
             <div style="display: flex; align-items: center; gap: 0.5rem;">
                 <div style="width: 20px; height: 20px; border-radius: 50%; background-color: rgb(220, 38, 38);"></div>
-                <span style="color: #1E293B; font-weight: 500;">Unhealthy (151-200)</span>
+                <span style="color: {TOPIC_BLUE_DARK}; font-weight: 500;">Unhealthy (151-200)</span>
             </div>
             <div style="display: flex; align-items: center; gap: 0.5rem;">
                 <div style="width: 20px; height: 20px; border-radius: 50%; background-color: rgb(147, 51, 234);"></div>
-                <span style="color: #1E293B; font-weight: 500;">Very Unhealthy (201-300)</span>
+                <span style="color: {TOPIC_BLUE_DARK}; font-weight: 500;">Very Unhealthy (201-300)</span>
             </div>
             <div style="display: flex; align-items: center; gap: 0.5rem;">
                 <div style="width: 20px; height: 20px; border-radius: 50%; background-color: rgb(126, 34, 206);"></div>
-                <span style="color: #1E293B; font-weight: 500;">Hazardous (300+)</span>
+                <span style="color: {TOPIC_BLUE_DARK}; font-weight: 500;">Hazardous (300+)</span>
             </div>
         </div>
     </div>
     """, unsafe_allow_html=True)
 
-    # Plot the FILTERED data
     st.pydeck_chart(pdk.Deck(
         map_style="light",
         initial_view_state=pdk.ViewState(
             latitude=DELHI_LAT, longitude=DELHI_LON, zoom=9.5, pitch=50),
         layers=[pdk.Layer(
             "ScatterplotLayer",
-            data=df, # This 'df' is now the filtered one
+            data=df,
             get_position='[lon, lat]',
             get_fill_color='color',
             get_radius=250,
@@ -623,6 +603,8 @@ def render_map_tab(df):
         tooltip={"html": "<b>{station_name}</b><br/>AQI: {aqi}<br/>Category: {category}<br/>Last Updated: {last_updated}",
                  "style": {"color": "white"}}
     ))
+
+
 def render_alerts_tab(df):
     """Renders health alerts and advice based on current AQI levels."""
     st.markdown('<div class="section-header">🔔 Health Alerts & Recommendations</div>',
@@ -652,113 +634,124 @@ def render_alerts_tab(df):
 
 
 def render_alert_subscription_tab(df):
-    st.markdown('<div class="section-header">📱 SMS Alert Subscription</div>', unsafe_allow_html=True)
+    """Renders alert subscription form."""
+    st.markdown('<div class="section-header">📱 SMS Alert Subscription</div>',
+                unsafe_allow_html=True)
 
-    st.info("Your location will be detected automatically. You can still edit it manually.", icon="📍")
+    st.markdown(f"""
+    <div style="background-color: #E0FFFF; padding: 1rem; border-radius: 10px; border-left: 4px solid {TOPIC_TEAL_LIGHT}; margin-bottom: 1.5rem;">
+        <p style="color: {TOPIC_BLUE_DARK}; margin: 0; font-weight: 500;">
+        📍 Get real-time air quality and weather alerts for your location via SMS. 
+        We'll find the nearest monitoring stations and send you personalized updates.
+        </p>
+    </div>
+    """, unsafe_allow_html=True)
 
-    # --- AUTO GPS DETECTION ---
-    geo = get_user_geolocation()
-    if geo:
-        auto_lat, auto_lon = geo
-    else:
-        auto_lat, auto_lon = 28.6139, 77.2090
-
-    # --- USER INPUT ---
     col1, col2 = st.columns(2)
 
     with col1:
         location_name = st.text_input(
             "📍 Your Location Name",
-            placeholder="Connaught Place, Delhi",
+            placeholder="e.g., Connaught Place, New Delhi",
+            help="Enter your area/locality name"
         )
 
         user_lat = st.number_input(
             "Latitude",
-            value=auto_lat,
+            min_value=28.4,
+            max_value=28.9,
+            value=28.6139,
             step=0.0001,
-            format="%.6f"
+            format="%.4f",
+            help="Your location's latitude"
         )
 
         user_lon = st.number_input(
             "Longitude",
-            value=auto_lon,
+            min_value=76.8,
+            max_value=77.4,
+            value=77.2090,
             step=0.0001,
-            format="%.6f"
+            format="%.4f",
+            help="Your location's longitude"
         )
 
     with col2:
         phone_number = st.text_input(
-            "📱 Phone Number (SMS77.io)",
-            placeholder="+91XXXXXXXXXX"
+            "📱 Phone Number",
+            placeholder="+91XXXXXXXXXX",
+            help="Enter with country code (e.g., +919876543210)"
         )
 
-        radius = st.slider("Search Radius (km)", 1, 20, 10)
+        radius = st.slider(
+            "Search Radius (km)",
+            min_value=1,
+            max_value=20,
+            value=10,
+            help="Find stations within this radius"
+        )
 
         st.markdown("<br>", unsafe_allow_html=True)
-        send_button = st.button("📤 Send Alert Now", use_container_width=True)
 
-    # --- PROCESS ACTION ---
-    if send_button:
-        if not phone_number.startswith("+"):
-            st.error("Phone number must include country code. Example: +919876543210")
-            return
-        
-        if location_name.strip() == "":
-            st.error("Please enter your location name.")
-            return
+        send_alert_btn = st.button(
+            "📤 Send Alert Now", type="primary", use_container_width=True)
 
-        # --- Use KRIGING GRID instead of station data ---
-        st.info("Using interpolated AQI value from Kriging heatmap...")
+    if send_alert_btn:
+        if not location_name or not phone_number:
+            st.error(
+                "Please fill in all required fields: Location Name and Phone Number", icon="⚠️")
+        elif not phone_number.startswith('+'):
+            st.error(
+                "Phone number must include country code (e.g., +919876543210)", icon="⚠️")
+        else:
+            with st.spinner("Finding nearby stations and preparing alert..."):
+                # Get nearby stations
+                nearby_stations = get_nearby_stations(
+                    df, user_lat, user_lon, radius)
 
-        lon_grid, lat_grid, z_grid = st.session_state.get("kriging_result", (None,None,None))
+                if nearby_stations.empty:
+                    st.warning(
+                        f"No monitoring stations found within {radius} km of your location. Try increasing the search radius.", icon="⚠️")
+                else:
+                    # Get weather data
+                    weather_data = fetch_weather_data()
 
-        if lon_grid is None:
-            st.error("Kriging has not been computed yet. Please visit the Kriging tab first.")
-            return
+                    # Create alert message
+                    alert_message = create_alert_message(
+                        nearby_stations, weather_data, location_name)
 
-        # Get AQI at user's exact location
-        aqi_value = get_aqi_from_kriging_point(
-            user_lon, user_lat, lon_grid, lat_grid, z_grid
-        )
+                    # Display preview
+                    st.markdown("### 📄 Alert Preview")
+                    st.info(alert_message)
 
-        if aqi_value is None:
-            st.error("Your location falls outside the interpolation area.")
-            return
+                    # Show nearby stations
+                    st.markdown("### 📍 Nearby Monitoring Stations")
+                    display_nearby = nearby_stations[[
+                        'station_name', 'aqi', 'category', 'distance']].head(5)
+                    display_nearby['distance'] = display_nearby['distance'].round(
+                        2).astype(str) + ' km'
+                    st.dataframe(display_nearby,
+                                 use_container_width=True, hide_index=True)
 
-        # Weather
-        weather = fetch_weather_data()
-        weather_desc, _ = get_weather_info(weather["current"]["weather_code"])
-        temp = weather["current"]["temperature_2m"]
+                    # Send SMS
+                    success, message = send_sms_alert(
+                        phone_number, alert_message)
 
-        # Create message
-        category, _, emoji, advice = get_aqi_category(aqi_value)
+                    if success:
+                        st.success(message, icon="✅")
+                    else:
+                        st.error(message, icon="❌")
+                        st.info("💡 **Note:** To enable SMS alerts, you need to:\n1. Sign up for Twilio (free trial available)\n2. Get your Account SID, Auth Token, and Phone Number\n3. Update the configuration in the code\n4. Install Twilio: `pip install twilio`", icon="ℹ️")
 
-        message = f"""
-📍 Air Quality Alert — {location_name}
-
-{emoji} AQI: {aqi_value:.0f} ({category})
-🌡️ Temp: {temp:.1f}°C
-🌤️ Weather: {weather_desc}
-
-💡 Advice: {advice}
-
-Stay safe!
-"""
-
-        # SEND SMS (SMS77.io)
-        api_response = send_sms_sms77(phone_number, message)
-
-        st.success("SMS sent successfully!")
-        st.json(api_response)
 
 def render_dummy_forecast_tab():
     """Render a dummy 24-hour AQI forecast using simulated data."""
     st.markdown('<div class="section-header">📈 24-Hour AQI Forecast (Sample)</div>',
                 unsafe_allow_html=True)
 
-    st.markdown("""
-    <div style="background-color: #E3F2FD; padding: 1rem; border-radius: 10px; border-left: 4px solid #2196F3; margin-bottom: 1rem;">
-        <p style="color: #0D47A1; margin: 0; font-weight: 500;">
+    st.markdown(f"""
+    <div style="background-color: #E0FFFF; padding: 1rem; border-radius: 10px; border-left: 4px solid {TOPIC_TEAL_LIGHT}; margin-bottom: 1rem;">
+        <p style="color: {TOPIC_BLUE_DARK}; margin: 0; font-weight: 500;">
         This sample forecast simulates how the Air Quality Index (AQI) may change over the next 24 hours.
         </p>
     </div>
@@ -789,10 +782,10 @@ def render_dummy_forecast_tab():
         margin=dict(t=40, b=20, l=0, r=20),
         paper_bgcolor='white',
         plot_bgcolor='white',
-        title_font_color="#0D47A1",
-        font_color="#0D47A1",
-        xaxis=dict(gridcolor='#E3F2FD'),
-        yaxis=dict(gridcolor='#E3F2FD')
+        title_font_color=TOPIC_BLUE_DARK,
+        font_color=TOPIC_BLUE_DARK,
+        xaxis=dict(gridcolor='#F0F0F0'),
+        yaxis=dict(gridcolor='#F0F0F0')
     )
 
     st.plotly_chart(fig, use_container_width=True)
@@ -803,7 +796,7 @@ def render_dummy_forecast_tab():
     min_aqi = forecast_df["forecast_aqi"].min()
 
     st.markdown(f"""
-    <div style="background-color: white; padding: 1rem; border-radius: 10px; border-left: 5px solid #1976D2; margin-top: 1rem; color: #1E293B;">
+    <div style="background-color: white; padding: 1rem; border-radius: 10px; border-left: 5px solid {TOPIC_BLUE_DARK}; margin-top: 1rem; color: {TOPIC_BLUE_DARK};">
         <b>Average Forecasted AQI:</b> {avg_aqi:.1f}  
         <br><b>Expected Range:</b> {min_aqi:.1f} – {max_aqi:.1f}
         <br><b>Air Quality Outlook:</b> Moderate to Unhealthy range over the next day.
@@ -832,8 +825,9 @@ def render_analytics_tab(df):
         fig.update_layout(
             showlegend=False,
             margin=dict(t=0, b=0, l=0, r=0),
-            paper_bgcolor='#F5F5F5',
-            plot_bgcolor='#F5F5F5'
+            paper_bgcolor='white',
+            plot_bgcolor='white',
+            font_color=TOPIC_BLUE_DARK
         )
         st.plotly_chart(fig, use_container_width=True)
 
@@ -849,10 +843,11 @@ def render_analytics_tab(df):
             yaxis_title="",
             showlegend=False,
             margin=dict(t=20, b=20, l=0, r=20),
-            paper_bgcolor='#F5F5F5',
-            plot_bgcolor='#F5F5F5',
-            xaxis=dict(gridcolor='#DDDDDD'),
-            yaxis=dict(gridcolor='#DDDDDD')
+            paper_bgcolor='white',
+            plot_bgcolor='white',
+            xaxis=dict(gridcolor='#F0F0F0'),
+            yaxis=dict(gridcolor='#F0F0F0'),
+            font_color=TOPIC_BLUE_DARK
         )
         st.plotly_chart(fig, use_container_width=True)
 
@@ -865,39 +860,12 @@ def render_analytics_tab(df):
 # ==========================
 # MAIN APP EXECUTION
 # ==========================
-aqi_data_raw = fetch_live_data()
+aqi_data = fetch_live_data()
+render_header(aqi_data)
 
-if aqi_data_raw.empty:
+if aqi_data.empty:
     st.error("⚠️ **Could not fetch live AQI data.** The API may be down or there's a network issue. Please try again later.", icon="🚨")
-    # Render header with empty data to avoid crashing
-    render_header(aqi_data_raw) 
 else:
-    # --- START OF NEW LOGIC ---
-    # 1. Load the Delhi boundary
-    delhi_gdf, delhi_polygon = load_delhi_boundary_from_url()
-    
-    aqi_data_filtered = pd.DataFrame() # Create an empty df
-    
-    if delhi_gdf is not None:
-        # 2. Convert raw station data to a GeoDataFrame
-        geometry = [Point(xy) for xy in zip(aqi_data_raw['lon'], aqi_data_raw['lat'])]
-        stations_gdf = gpd.GeoDataFrame(aqi_data_raw, crs="epsg:4326", geometry=geometry)
-        
-        # 3. Clip stations to keep only those INSIDE the Delhi polygon
-        aqi_data_filtered = gpd.clip(stations_gdf, delhi_polygon)
-    
-    if aqi_data_filtered.empty:
-        st.error("⚠️ **No monitoring stations found *inside* the Delhi boundary.** Showing raw data for the region.", icon="🚨")
-        # Fallback to raw data if filtering fails or finds nothing
-        aqi_data_to_display = aqi_data_raw
-    else:
-        st.success(f"✅ Loaded {len(aqi_data_filtered)} monitoring stations inside the Delhi boundary.", icon="🛰️")
-        aqi_data_to_display = aqi_data_filtered
-    # --- END OF NEW LOGIC ---
-
-    # 4. Render all components using the (now filtered) data
-    render_header(aqi_data_to_display)
-
     tab1, tab2, tab3, tab4, tab5, tab6 = st.tabs(
         ["🗺️ Live Map", "🔔 Alerts & Health",
          "📊 Analytics", "📱 SMS Alerts","📈 Forecast","🔥 Kriging Heatmap"])
@@ -905,26 +873,22 @@ else:
     with tab1:
         with st.container():
             st.markdown('<div class="content-card">', unsafe_allow_html=True)
-            # Pass the filtered data
-            render_map_tab(aqi_data_to_display) 
+            render_map_tab(aqi_data)
             st.markdown('</div>', unsafe_allow_html=True)
     with tab2:
         with st.container():
             st.markdown('<div class="content-card">', unsafe_allow_html=True)
-            # Pass the filtered data
-            render_alerts_tab(aqi_data_to_display)
+            render_alerts_tab(aqi_data)
             st.markdown('</div>', unsafe_allow_html=True)
     with tab3:
         with st.container():
             st.markdown('<div class="content-card">', unsafe_allow_html=True)
-            # Pass the filtered data
-            render_analytics_tab(aqi_data_to_display)
+            render_analytics_tab(aqi_data)
             st.markdown('</div>', unsafe_allow_html=True)
     with tab4:
         with st.container():
             st.markdown('<div class="content-card">', unsafe_allow_html=True)
-            # Pass the filtered data (for nearby calculations)
-            render_alert_subscription_tab(aqi_data_to_display)
+            render_alert_subscription_tab(aqi_data)
             st.markdown('</div>', unsafe_allow_html=True)
     with tab5:
         with st.container():
@@ -934,6 +898,5 @@ else:
     with tab6:
         with st.container():
             st.markdown('<div class="content-card">', unsafe_allow_html=True)
-            # Pass the filtered data
-            render_kriging_tab(aqi_data_to_display) 
+            render_kriging_tab(aqi_data)
             st.markdown('</div>', unsafe_allow_html=True)
