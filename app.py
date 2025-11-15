@@ -36,21 +36,16 @@ TWILIO_ACCOUNT_SID = "AC2cc57109fc63de336609901187eca69d"
 TWILIO_AUTH_TOKEN = "62b791789bb490f91879e89fa2ed959d"
 TWILIO_PHONE_NUMBER = "+13856005348"
 
-# **NEW COLORS BASED ON "TOPIC" TEMPLATE**
-# Primary Teal (Lighter side of gradient/buttons)
-TOPIC_TEAL_LIGHT = "#63B4B8" 
-# Secondary Blue (Darker side of gradient/headers)
-TOPIC_BLUE_DARK = "#286D87" 
-# Accent/Primary Button Green
-TOPIC_ACCENT_GREEN = "#5DC3A5" 
-# Background Gradient (Based on the image)
-TOPIC_GRADIENT_START = "#63B4B8"
-TOPIC_GRADIENT_END = "#36768D"
-# Card Background is pure white
-# Text Color is dark blue/gray for contrast
+# **NEW CLEAN EMERALD & DEEP GRAY STYLE**
+EMERALD_GREEN = "#00A389"
+DEEP_SAPPHIRE = "#124075"
+SOFT_GRAY = "#F7F8FC"
+DARK_TEXT = "#1A1A1A"
+TEAL_BORDER = "#B6E6E1"
+
 
 # ==========================
-# CUSTOM CSS FOR STYLING (NEW "TOPIC" THEME)
+# CUSTOM CSS FOR STYLING (NEW THEME)
 # ==========================
 st.markdown(f"""
 <style>
@@ -60,9 +55,9 @@ st.markdown(f"""
         font-family: 'Inter', sans-serif;
     }}
 
-    /* Main background - Teal/Blue Gradient */
+    /* Main background - Soft Pale Gray */
     .stApp {{
-        background: linear-gradient(135deg, {TOPIC_GRADIENT_START} 0%, {TOPIC_GRADIENT_END} 100%);
+        background-color: {SOFT_GRAY};
     }}
 
     /* Hide Streamlit's default header and footer */
@@ -74,63 +69,63 @@ st.markdown(f"""
     .main-title {{
         font-size: 3.5rem;
         font-weight: 900;
-        color: white; /* Contrast against the dark gradient */
+        color: {EMERALD_GREEN};
         padding: 1.5rem 0 0.5rem 0;
         text-align: center;
-        text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.3);
+        text-shadow: 1px 1px 3px rgba(0, 163, 137, 0.2);
         letter-spacing: -1px;
     }}
 
     /* Subtitle styling */
     .subtitle {{
         font-size: 1.2rem;
-        color: #E0FFFF; /* Very light text color for readability on gradient */
+        color: {DEEP_SAPPHIRE};
         text-align: center;
         padding-bottom: 1.5rem;
         font-weight: 500;
     }}
 
-    /* Metric cards styling (White cards with large rounding) */
+    /* Metric cards styling */
     .metric-card {{
         background-color: #FFFFFF;
-        border-radius: 20px; /* Increased rounding */
+        border-radius: 12px;
         padding: 1.5rem;
-        border: 1px solid #E0E0E0;
-        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+        border: 2px solid {TEAL_BORDER};
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
         text-align: center;
         height: 100%;
     }}
     .metric-card-label {{
         font-size: 1rem;
         font-weight: 600;
-        color: {TOPIC_BLUE_DARK};
+        color: {DEEP_SAPPHIRE};
         margin-bottom: 0.5rem;
     }}
     .metric-card-value {{
         font-size: 2.5rem;
         font-weight: 900;
-        color: {TOPIC_ACCENT_GREEN}; /* Use accent color for data */
+        color: {EMERALD_GREEN};
         margin: 0.5rem 0;
     }}
     .metric-card-delta {{
         font-size: 0.9rem;
-        color: {TOPIC_BLUE_DARK};
+        color: {DARK_TEXT};
         font-weight: 500;
     }}
 
     /* Weather widget styling */
     .weather-widget {{
         background-color: #FFFFFF;
-        border-radius: 20px; /* Increased rounding */
+        border-radius: 12px;
         padding: 1.5rem;
-        border: 1px solid #E0E0E0;
-        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+        border: 2px solid {TEAL_BORDER};
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
         height: 100%;
     }}
     .weather-temp {{
         font-size: 2.5rem;
         font-weight: 900;
-        color: {TOPIC_BLUE_DARK};
+        color: {DEEP_SAPPHIRE};
     }}
 
     /* Styling for Streamlit tabs */
@@ -144,31 +139,31 @@ st.markdown(f"""
         font-size: 1rem;
         font-weight: 600;
         background-color: white;
-        border-radius: 10px; 
+        border-radius: 10px;
         padding: 0.75rem 1.5rem;
-        border: 1px solid {TOPIC_TEAL_LIGHT};
-        color: {TOPIC_BLUE_DARK};
-        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        border: 1px solid {TEAL_BORDER};
+        color: {DARK_TEXT};
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
     }}
     
     .stTabs [data-baseweb="tab"]:hover {{
-        background-color: #F0F8FF; /* Light hover */
-        border-color: {TOPIC_ACCENT_GREEN};
+        background-color: #E0F2F1; /* Lighter Emerald */
+        border-color: {EMERALD_GREEN};
     }}
     
     .stTabs [aria-selected="true"] {{
-        background-color: {TOPIC_ACCENT_GREEN}; /* Green accent when selected */
+        background-color: {EMERALD_GREEN};
         color: white !important;
-        border-color: {TOPIC_ACCENT_GREEN};
+        border-color: {EMERALD_GREEN};
     }}
 
-    /* General card for content (Main dashboard sections) */
+    /* General card for content */
     .content-card {{
         background-color: #FFFFFF;
         padding: 2.5rem;
-        border-radius: 25px; /* Maximum rounding for main containers */
-        border: 1px solid #E0E0E0;
-        box-shadow: 0 15px 35px rgba(0, 0, 0, 0.15);
+        border-radius: 18px;
+        border: 2px solid {TEAL_BORDER};
+        box-shadow: 0 12px 30px rgba(0, 0, 0, 0.1);
         margin-top: 1.5rem;
     }}
 
@@ -176,33 +171,33 @@ st.markdown(f"""
     .section-header {{
         font-size: 1.6rem;
         font-weight: 800;
-        color: {TOPIC_BLUE_DARK};
+        color: {DEEP_SAPPHIRE};
         margin-bottom: 1.5rem;
         padding-bottom: 0.5rem;
-        border-bottom: 3px solid {TOPIC_TEAL_LIGHT};
+        border-bottom: 3px solid {EMERALD_GREEN};
     }}
-
-    /* Primary buttons (Search button style) */
+    
+    /* Primary buttons */
     .stButton > button {{
-        background-color: {TOPIC_ACCENT_GREEN};
+        background-color: {EMERALD_GREEN};
         color: white;
         border: none;
         border-radius: 8px;
         padding: 0.6rem 1.2rem;
         font-weight: 700;
-        box-shadow: 0 4px 10px rgba(93, 195, 165, 0.4);
+        box-shadow: 0 4px 10px rgba(0, 163, 137, 0.3);
         transition: background-color 0.2s;
     }}
     .stButton > button:hover {{
-        background-color: #4CAF92;
+        background-color: #008f79;
     }}
     
     /* Info box styling */
     div[data-testid="stAlert"] {{
         background-color: white;
-        border-left: 5px solid {TOPIC_TEAL_LIGHT};
+        border-left: 5px solid {EMERALD_GREEN};
         border-radius: 10px;
-        color: {TOPIC_BLUE_DARK};
+        color: {DEEP_SAPPHIRE};
     }}
 
     /* Error box styling */
@@ -228,6 +223,7 @@ def load_delhi_boundary_from_url():
         delhi_polygon = gdf.unary_union
         
         # Define UTM zone 43N (appropriate for Delhi) projection transformer
+        # WGS84 (4326) to UTM Zone 43N (32643)
         project_to_utm = pyproj.Transformer.from_crs(
              "epsg:4326", "epsg:32643", always_xy=True
         ).transform
@@ -309,6 +305,7 @@ def render_kriging_tab(df):
 
     delhi_bounds_tuple = (28.40, 28.88, 76.84, 77.35)
 
+    # Load polygon and ensure it's in UTM (projected coordinates for Kriging)
     _, delhi_polygon_utm = load_delhi_boundary_from_url()
 
     if delhi_polygon_utm is None:
@@ -332,10 +329,12 @@ def render_kriging_tab(df):
 
 
     with st.spinner("Performing spatial interpolation..."):
+        # Pass the UTM-projected polygon to krigging for masking
+        # krigging should handle the inverse projection for the map if necessary
         lon_grid, lat_grid, z = perform_kriging_correct(
             df,
             delhi_bounds_tuple,
-            polygon=delhi_polygon_utm,
+            polygon=delhi_polygon_utm,  # **FIXED: Use the UTM-projected polygon**
             resolution=200
         )
 
@@ -345,6 +344,7 @@ def render_kriging_tab(df):
         "aqi": z.flatten()
     })
     
+    # Filter out NaNs (where kriging failed or was masked)
     heatmap_df = heatmap_df.dropna()
 
     fig = px.density_mapbox(
@@ -356,18 +356,20 @@ def render_kriging_tab(df):
         center=dict(lat=DELHI_LAT, lon=DELHI_LON),
         zoom=9,
         mapbox_style="carto-positron",
+        # Custom color scale for AQI levels
         color_continuous_scale=[
             "#009E60", "#FFD600", "#F97316",
             "#DC2626", "#9333EA", "#7E22CE"
         ]
     )
     
-    fig.update_layout(title_text='Interpolated AQI Heatmap', title_font_color=TOPIC_BLUE_DARK)
+    fig.update_layout(title_text='Interpolated AQI Heatmap', title_font_color=DEEP_SAPPHIRE)
     
     st.plotly_chart(fig, use_container_width=True)
 
     st.info("💡 **Spatial Interpolation (Kriging):** This technique estimates AQI values across all of Delhi using the limited monitoring station data, providing a continuous **heatmap** of air quality. This requires coordinates to be projected (UTM) for accurate distance calculation.", icon="🗺️")
     
+
 
 def get_weather_info(code):
     """Converts WMO weather code to a description and icon."""
@@ -497,12 +499,12 @@ Stay safe!"""
 
 def render_header(df):
     """Renders the main header with summary metrics and weather."""
-    st.markdown('<div class="main-title">🌍 Discover. Learn. Enjoy.</div>',
+    st.markdown('<div class="main-title">🌍 Delhi Air Quality Dashboard</div>',
                 unsafe_allow_html=True)
     last_update_time = df['last_updated'].max(
     ) if not df.empty and 'last_updated' in df.columns else "N/A"
     st.markdown(
-        f'<p class="subtitle">Real-time air quality platform for creatives around the world • Last updated: {last_update_time}</p>', unsafe_allow_html=True)
+        f'<p class="subtitle">Real-time monitoring • Last updated: {last_update_time}</p>', unsafe_allow_html=True)
 
     c1, c2, c3, c4 = st.columns(4)
     if not df.empty:
@@ -532,7 +534,7 @@ def render_header(df):
                     </div>
                     <div style="font-size: 3rem;">{icon}</div>
                 </div>
-                <div style="text-align: left; font-size: 0.9rem; color: {TOPIC_BLUE_DARK}; margin-top: 1rem; font-weight: 500;">
+                <div style="text-align: left; font-size: 0.9rem; color: {DEEP_SAPPHIRE}; margin-top: 1rem; font-weight: 500;">
                     {desc}<br/>Humidity: {current['relative_humidity_2m']}%<br/>Wind: {current['wind_speed_10m']} km/h
                 </div>
             </div>
@@ -541,7 +543,7 @@ def render_header(df):
             st.markdown(f"""
             <div class="weather-widget">
                 <div class="metric-card-label">Current Weather</div>
-                <div style="color: {TOPIC_BLUE_DARK}; margin-top: 1rem;">Weather data unavailable</div>
+                <div style="color: {DEEP_SAPPHIRE}; margin-top: 1rem;">Weather data unavailable</div>
             </div>
             """, unsafe_allow_html=True)
 
@@ -553,32 +555,32 @@ def render_map_tab(df):
 
     # Add Legend (Uses new colors for styling)
     st.markdown(f"""
-    <div style="background-color: white; padding: 1rem; border-radius: 15px; border: 1px solid #E0E0E0; margin-bottom: 1rem;">
-        <div style="font-weight: 700; color: {TOPIC_BLUE_DARK}; margin-bottom: 0.75rem; font-size: 1.1rem;">AQI Color Legend</div>
+    <div style="background-color: white; padding: 1rem; border-radius: 10px; border: 2px solid {TEAL_BORDER}; margin-bottom: 1rem;">
+        <div style="font-weight: 700; color: {DEEP_SAPPHIRE}; margin-bottom: 0.75rem; font-size: 1.1rem;">AQI Color Legend</div>
         <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 0.75rem;">
             <div style="display: flex; align-items: center; gap: 0.5rem;">
                 <div style="width: 20px; height: 20px; border-radius: 50%; background-color: rgb(0, 158, 96);"></div>
-                <span style="color: {TOPIC_BLUE_DARK}; font-weight: 500;">Good (0-50)</span>
+                <span style="color: {DARK_TEXT}; font-weight: 500;">Good (0-50)</span>
             </div>
             <div style="display: flex; align-items: center; gap: 0.5rem;">
                 <div style="width: 20px; height: 20px; border-radius: 50%; background-color: rgb(255, 214, 0);"></div>
-                <span style="color: {TOPIC_BLUE_DARK}; font-weight: 500;">Moderate (51-100)</span>
+                <span style="color: {DARK_TEXT}; font-weight: 500;">Moderate (51-100)</span>
             </div>
             <div style="display: flex; align-items: center; gap: 0.5rem;">
                 <div style="width: 20px; height: 20px; border-radius: 50%; background-color: rgb(249, 115, 22);"></div>
-                <span style="color: {TOPIC_BLUE_DARK}; font-weight: 500;">Unhealthy for Sensitive (101-150)</span>
+                <span style="color: {DARK_TEXT}; font-weight: 500;">Unhealthy for Sensitive (101-150)</span>
             </div>
             <div style="display: flex; align-items: center; gap: 0.5rem;">
                 <div style="width: 20px; height: 20px; border-radius: 50%; background-color: rgb(220, 38, 38);"></div>
-                <span style="color: {TOPIC_BLUE_DARK}; font-weight: 500;">Unhealthy (151-200)</span>
+                <span style="color: {DARK_TEXT}; font-weight: 500;">Unhealthy (151-200)</span>
             </div>
             <div style="display: flex; align-items: center; gap: 0.5rem;">
                 <div style="width: 20px; height: 20px; border-radius: 50%; background-color: rgb(147, 51, 234);"></div>
-                <span style="color: {TOPIC_BLUE_DARK}; font-weight: 500;">Very Unhealthy (201-300)</span>
+                <span style="color: {DARK_TEXT}; font-weight: 500;">Very Unhealthy (201-300)</span>
             </div>
             <div style="display: flex; align-items: center; gap: 0.5rem;">
                 <div style="width: 20px; height: 20px; border-radius: 50%; background-color: rgb(126, 34, 206);"></div>
-                <span style="color: {TOPIC_BLUE_DARK}; font-weight: 500;">Hazardous (300+)</span>
+                <span style="color: {DARK_TEXT}; font-weight: 500;">Hazardous (300+)</span>
             </div>
         </div>
     </div>
@@ -639,8 +641,8 @@ def render_alert_subscription_tab(df):
                 unsafe_allow_html=True)
 
     st.markdown(f"""
-    <div style="background-color: #E0FFFF; padding: 1rem; border-radius: 10px; border-left: 4px solid {TOPIC_TEAL_LIGHT}; margin-bottom: 1.5rem;">
-        <p style="color: {TOPIC_BLUE_DARK}; margin: 0; font-weight: 500;">
+    <div style="background-color: #E0F2F1; padding: 1rem; border-radius: 10px; border-left: 4px solid {EMERALD_GREEN}; margin-bottom: 1.5rem;">
+        <p style="color: {DEEP_SAPPHIRE}; margin: 0; font-weight: 500;">
         📍 Get real-time air quality and weather alerts for your location via SMS. 
         We'll find the nearest monitoring stations and send you personalized updates.
         </p>
@@ -750,8 +752,8 @@ def render_dummy_forecast_tab():
                 unsafe_allow_html=True)
 
     st.markdown(f"""
-    <div style="background-color: #E0FFFF; padding: 1rem; border-radius: 10px; border-left: 4px solid {TOPIC_TEAL_LIGHT}; margin-bottom: 1rem;">
-        <p style="color: {TOPIC_BLUE_DARK}; margin: 0; font-weight: 500;">
+    <div style="background-color: #E0F2F1; padding: 1rem; border-radius: 10px; border-left: 4px solid {EMERALD_GREEN}; margin-bottom: 1rem;">
+        <p style="color: {DEEP_SAPPHIRE}; margin: 0; font-weight: 500;">
         This sample forecast simulates how the Air Quality Index (AQI) may change over the next 24 hours.
         </p>
     </div>
@@ -782,10 +784,10 @@ def render_dummy_forecast_tab():
         margin=dict(t=40, b=20, l=0, r=20),
         paper_bgcolor='white',
         plot_bgcolor='white',
-        title_font_color=TOPIC_BLUE_DARK,
-        font_color=TOPIC_BLUE_DARK,
-        xaxis=dict(gridcolor='#F0F0F0'),
-        yaxis=dict(gridcolor='#F0F0F0')
+        title_font_color=DEEP_SAPPHIRE,
+        font_color=DARK_TEXT,
+        xaxis=dict(gridcolor='#E0F2F1'),
+        yaxis=dict(gridcolor='#E0F2F1')
     )
 
     st.plotly_chart(fig, use_container_width=True)
@@ -796,7 +798,7 @@ def render_dummy_forecast_tab():
     min_aqi = forecast_df["forecast_aqi"].min()
 
     st.markdown(f"""
-    <div style="background-color: white; padding: 1rem; border-radius: 10px; border-left: 5px solid {TOPIC_BLUE_DARK}; margin-top: 1rem; color: {TOPIC_BLUE_DARK};">
+    <div style="background-color: white; padding: 1rem; border-radius: 10px; border-left: 5px solid {DEEP_SAPPHIRE}; margin-top: 1rem; color: {DARK_TEXT};">
         <b>Average Forecasted AQI:</b> {avg_aqi:.1f}  
         <br><b>Expected Range:</b> {min_aqi:.1f} – {max_aqi:.1f}
         <br><b>Air Quality Outlook:</b> Moderate to Unhealthy range over the next day.
@@ -827,7 +829,7 @@ def render_analytics_tab(df):
             margin=dict(t=0, b=0, l=0, r=0),
             paper_bgcolor='white',
             plot_bgcolor='white',
-            font_color=TOPIC_BLUE_DARK
+            font_color=DARK_TEXT
         )
         st.plotly_chart(fig, use_container_width=True)
 
@@ -847,7 +849,7 @@ def render_analytics_tab(df):
             plot_bgcolor='white',
             xaxis=dict(gridcolor='#F0F0F0'),
             yaxis=dict(gridcolor='#F0F0F0'),
-            font_color=TOPIC_BLUE_DARK
+            font_color=DARK_TEXT
         )
         st.plotly_chart(fig, use_container_width=True)
 
