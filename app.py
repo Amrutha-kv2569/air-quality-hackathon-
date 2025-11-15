@@ -52,167 +52,106 @@ TOPIC_GRADIENT_END = "#36768D"
 # ==========================
 # CUSTOM CSS FOR STYLING (NEW "TOPIC" THEME)
 # ==========================
-st.markdown(f"""
+st.markdown("""
 <style>
-    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap');
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
     
-    html, body, [class*="st-"] {{
+    html, body, [class*="st-"] {
         font-family: 'Inter', sans-serif;
-    }}
+    }
 
-    /* Main background - Teal/Blue Gradient */
-    .stApp {{
-        background: linear-gradient(135deg, {TOPIC_GRADIENT_START} 0%, {TOPIC_GRADIENT_END} 100%);
-    }}
+    /* NEW TOPIC TEMPLATE GRADIENT */
+    .stApp {
+        background: linear-gradient(135deg, #0F5E67 0%, #1BA098 50%, #A5E5D9 100%);
+    }
 
-    /* Hide Streamlit's default header and footer */
-    header, footer, #MainMenu {{
+    /* Hide Streamlit default header/footer */
+    header, footer, #MainMenu {
         visibility: hidden;
-    }}
+    }
     
     /* Main title styling */
-    .main-title {{
+    .main-title {
         font-size: 3.5rem;
         font-weight: 900;
-        color: white; /* Contrast against the dark gradient */
+        color: white;
         padding: 1.5rem 0 0.5rem 0;
         text-align: center;
-        text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.3);
+        text-shadow: 2px 2px 4px rgba(0,0,0,0.25);
         letter-spacing: -1px;
-    }}
+    }
 
-    /* Subtitle styling */
-    .subtitle {{
+    /* Subtitle */
+    .subtitle {
         font-size: 1.2rem;
-        color: #E0FFFF; /* Very light text color for readability on gradient */
+        color: #E0F8F4;
         text-align: center;
         padding-bottom: 1.5rem;
         font-weight: 500;
-    }}
+    }
 
-    /* Metric cards styling (White cards with large rounding) */
-    .metric-card {{
-        background-color: #FFFFFF;
-        border-radius: 20px; /* Increased rounding */
+    /* Metric card */
+    .metric-card {
+        background-color: rgba(255,255,255,0.9);
+        border-radius: 15px;
         padding: 1.5rem;
-        border: 1px solid #E0E0E0;
-        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+        border: 2px solid #C8F3EA;
+        box-shadow: 0 4px 20px rgba(0,0,0,0.10);
         text-align: center;
         height: 100%;
-    }}
-    .metric-card-label {{
+    }
+
+    .metric-card-label {
         font-size: 1rem;
         font-weight: 600;
-        color: {TOPIC_BLUE_DARK};
+        color: #0F5E67;
         margin-bottom: 0.5rem;
-    }}
-    .metric-card-value {{
+    }
+
+    .metric-card-value {
         font-size: 2.5rem;
-        font-weight: 900;
-        color: {TOPIC_ACCENT_GREEN}; /* Use accent color for data */
+        font-weight: 800;
+        color: #1BA098;
         margin: 0.5rem 0;
-    }}
-    .metric-card-delta {{
-        font-size: 0.9rem;
-        color: {TOPIC_BLUE_DARK};
-        font-weight: 500;
-    }}
+    }
 
-    /* Weather widget styling */
-    .weather-widget {{
-        background-color: #FFFFFF;
-        border-radius: 20px; /* Increased rounding */
-        padding: 1.5rem;
-        border: 1px solid #E0E0E0;
-        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
-        height: 100%;
-    }}
-    .weather-temp {{
-        font-size: 2.5rem;
-        font-weight: 900;
-        color: {TOPIC_BLUE_DARK};
-    }}
-
-    /* Styling for Streamlit tabs */
-    .stTabs [data-baseweb="tab-list"] {{
-        gap: 0.75rem;
+    /* Tabs */
+    .stTabs [data-baseweb="tab-list"] {
+        gap: 1rem;
         background-color: transparent;
         padding: 1rem 0;
-    }}
+    }
     
-    .stTabs [data-baseweb="tab"] {{
-        font-size: 1rem;
+    .stTabs [data-baseweb="tab"] {
+        font-size: 1.1rem;
         font-weight: 600;
-        background-color: white;
-        border-radius: 10px; 
-        padding: 0.75rem 1.5rem;
-        border: 1px solid {TOPIC_TEAL_LIGHT};
-        color: {TOPIC_BLUE_DARK};
-        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-    }}
+        background-color: rgba(255,255,255,0.85);
+        border-radius: 15px;
+        padding: 1rem 2rem;
+        border: 2px solid #B9EDE1;
+        color: #0F5E67;
+    }
     
-    .stTabs [data-baseweb="tab"]:hover {{
-        background-color: #F0F8FF; /* Light hover */
-        border-color: {TOPIC_ACCENT_GREEN};
-    }}
+    .stTabs [data-baseweb="tab"]:hover {
+        background-color: rgba(255,255,255,1);
+        border-color: #1BA098;
+    }
     
-    .stTabs [aria-selected="true"] {{
-        background-color: {TOPIC_ACCENT_GREEN}; /* Green accent when selected */
+    .stTabs [aria-selected="true"] {
+        background: linear-gradient(135deg, #1BA098, #0F5E67);
         color: white !important;
-        border-color: {TOPIC_ACCENT_GREEN};
-    }}
+        border-color: #0F5E67;
+    }
 
-    /* General card for content (Main dashboard sections) */
-    .content-card {{
-        background-color: #FFFFFF;
-        padding: 2.5rem;
-        border-radius: 25px; /* Maximum rounding for main containers */
-        border: 1px solid #E0E0E0;
-        box-shadow: 0 15px 35px rgba(0, 0, 0, 0.15);
+    /* Content card */
+    .content-card {
+        background-color: rgba(255,255,255,0.9);
+        padding: 2rem;
+        border-radius: 20px;
+        border: 2px solid #B9EDE1;
+        box-shadow: 0 10px 40px rgba(0,0,0,0.10);
         margin-top: 1.5rem;
-    }}
-
-    /* Section headers */
-    .section-header {{
-        font-size: 1.6rem;
-        font-weight: 800;
-        color: {TOPIC_BLUE_DARK};
-        margin-bottom: 1.5rem;
-        padding-bottom: 0.5rem;
-        border-bottom: 3px solid {TOPIC_TEAL_LIGHT};
-    }}
-
-    /* Primary buttons (Search button style) */
-    .stButton > button {{
-        background-color: {TOPIC_ACCENT_GREEN};
-        color: white;
-        border: none;
-        border-radius: 8px;
-        padding: 0.6rem 1.2rem;
-        font-weight: 700;
-        box-shadow: 0 4px 10px rgba(93, 195, 165, 0.4);
-        transition: background-color 0.2s;
-    }}
-    .stButton > button:hover {{
-        background-color: #4CAF92;
-    }}
-    
-    /* Info box styling */
-    div[data-testid="stAlert"] {{
-        background-color: white;
-        border-left: 5px solid {TOPIC_TEAL_LIGHT};
-        border-radius: 10px;
-        color: {TOPIC_BLUE_DARK};
-    }}
-
-    /* Error box styling */
-    div[data-testid="stError"] {{
-        background-color: white;
-        border-left: 5px solid #E53935;
-        border-radius: 10px;
-        color: #C62828;
-    }}
-
+    }
 </style>
 """, unsafe_allow_html=True)
 
